@@ -25,3 +25,8 @@ management:
         enabled: true
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8083"
+
+# Configuración JWT
+jwt:
+  secret: "zW4nF8kP2rT7vX1yL9hG5bC3jM6qS0dE8oV1wA4iU7zW4nF8kP2rT7vX1yL9hG5b"
+  expiration: 3600000

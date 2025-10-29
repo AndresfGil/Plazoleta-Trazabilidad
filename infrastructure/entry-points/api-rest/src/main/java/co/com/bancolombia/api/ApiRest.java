@@ -4,12 +4,16 @@ import co.com.bancolombia.api.dto.TrazabilidadResponse;
 import co.com.bancolombia.model.trazabilidadpedido.TrazabilidadPedido;
 import co.com.bancolombia.usecase.trazabilidadpedido.TrazabilidadPedidoUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,9 +28,19 @@ public class ApiRest {
 
     private final TrazabilidadPedidoUseCase trazabilidadPedidoUseCase;
 
-    @Operation(summary = "Registrar cambio de estado de pedido", 
-               description = "Registra un cambio de estado de pedido usando parámetros de URL")
+    @Operation(
+        summary = "Registrar cambio de estado de pedido", 
+        description = "Registra un cambio de estado de pedido usando parámetros de URL. Requiere autenticación JWT con rol CLIENTE.",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Trazabilidad registrada exitosamente"),
+        @ApiResponse(responseCode = "401", description = "No autorizado - Token JWT inválido o faltante"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requiere rol CLIENTE"),
+        @ApiResponse(responseCode = "500", description = "Error interno del servidor")
+    })
     @PostMapping("/registrar-simple")
+    @PreAuthorize("hasAuthority('CLIENTE')")
     public ResponseEntity<String> registrarTrazabilidadSimple(
             @RequestParam("idPedido") Long idPedido,
             @RequestParam("idCliente") Long idCliente,
@@ -54,9 +68,18 @@ public class ApiRest {
         }
     }
 
-    @Operation(summary = "Consultar trazabilidad por cliente", 
-               description = "Obtiene todos los cambios de estado de pedidos para un cliente específico")
+    @Operation(
+        summary = "Consultar trazabilidad por cliente", 
+        description = "Obtiene todos los cambios de estado de pedidos para un cliente específico. Requiere autenticación JWT con rol CLIENTE.",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de trazabilidades obtenida exitosamente"),
+        @ApiResponse(responseCode = "401", description = "No autorizado - Token JWT inválido o faltante"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requiere rol CLIENTE")
+    })
     @GetMapping("/cliente/{idCliente}")
+    @PreAuthorize("hasAuthority('CLIENTE')")
     public ResponseEntity<List<TrazabilidadResponse>> consultarTrazabilidadPorCliente(
             @PathVariable("idCliente") Long idCliente) {
         
@@ -68,9 +91,18 @@ public class ApiRest {
         return ResponseEntity.ok(responses);
     }
 
-    @Operation(summary = "Consultar trazabilidad por pedido", 
-               description = "Obtiene todos los cambios de estado para un pedido específico")
+    @Operation(
+        summary = "Consultar trazabilidad por pedido", 
+        description = "Obtiene todos los cambios de estado para un pedido específico. Requiere autenticación JWT con rol CLIENTE.",
+        security = @SecurityRequirement(name = "Bearer Authentication")
+    )
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Lista de trazabilidades obtenida exitosamente"),
+        @ApiResponse(responseCode = "401", description = "No autorizado - Token JWT inválido o faltante"),
+        @ApiResponse(responseCode = "403", description = "Acceso denegado - Se requiere rol CLIENTE")
+    })
     @GetMapping("/pedido/{idPedido}")
+    @PreAuthorize("hasAuthority('CLIENTE')")
     public ResponseEntity<List<TrazabilidadResponse>> consultarTrazabilidadPorPedido(
             @PathVariable("idPedido") Long idPedido) {
         
